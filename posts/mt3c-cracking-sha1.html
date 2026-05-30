@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MT3C Cracking Sha1-Hashed passwords | nEwBeE303</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #faf9f8;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            color: #2c3e4e;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            padding: 2.5rem 2rem;
+        }
+
+        .site-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eaeef2;
+        }
+
+        .blog-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #1a4d6b;
+            margin-bottom: 0.3rem;
+        }
+
+        .tagline {
+            color: #6b8ba5;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 0.8rem;
+        }
+
+        .nav a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #4a708b;
+        }
+
+        .nav a:hover {
+            color: #1a4d6b;
+            text-decoration: underline;
+        }
+
+        .post-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .post-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a3a4a;
+            margin-bottom: 0.75rem;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: #8aa9c2;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .post-content {
+            font-size: 1rem;
+            line-height: 1.75;
+            color: #2f4a5e;
+        }
+
+        .post-content h2 {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 0.75rem 0;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid #eef2f6;
+            color: #1a4d6b;
+        }
+
+        .post-content h3 {
+            font-size: 1.25rem;
+            margin: 1.2rem 0 0.5rem 0;
+            color: #2c6280;
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+        }
+
+        .post-content ul, .post-content ol {
+            margin: 0.75rem 0 1rem 1.8rem;
+        }
+
+        pre {
+            background: #1e2a36;
+            color: #e2e8f0;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            margin: 1.2rem 0;
+        }
+
+        code {
+            font-family: 'SF Mono', Monaco, monospace;
+            background: #f0f4f8;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #c7254e;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        .result-box {
+            background: #f0f7ee;
+            border-left: 4px solid #4c9f70;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin: 1.2rem 0;
+            font-family: monospace;
+        }
+
+        .ref-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .ref-tag {
+            background: #eff3f8;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #3a6b8c;
+        }
+
+        .license {
+            margin: 2rem 0 1rem;
+            padding-top: 1rem;
+            font-size: 0.8rem;
+            color: #8aa2b8;
+            text-align: center;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .share {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        hr {
+            margin: 1.5rem 0;
+            border: none;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #8aa2b8;
+            margin-top: 2rem;
+            padding-top: 1rem;
+        }
+
+        .table-of-contents {
+            background: #f8fafc;
+            border: 1px solid #e6edf4;
+            border-radius: 18px;
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0 1.8rem;
+        }
+        .toc-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a4d6b;
+            margin-bottom: 0.8rem;
+        }
+        .toc-list {
+            list-style: none;
+            margin: 0;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem 1.5rem;
+        }
+        .toc-list li {
+            margin: 0;
+        }
+        .toc-list a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #3a6b8c;
+        }
+        .toc-list a:hover {
+            color: #1a4d6b;
+        }
+
+        @media (max-width: 620px) {
+            .container {
+                padding: 1.5rem;
+            }
+            .post-title {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="site-header">
+        <h1 class="blog-title">nEwBeE303</h1>
+        <div class="tagline">记录学习，分享思考</div>
+        <div class="nav">
+            <a href="/">home</a>
+            <a href="/about.html">about</a>
+            <a href="#">archive</a>
+        </div>
+    </header>
+
+    <main>
+        <article>
+            <div class="post-header">
+                <h1 class="post-title">MT3C Cracking Sha1-Hashed passwords</h1>
+                <div class="post-meta">
+                    <span>📅 发表于 2023/11/04 · 更新于 2023/11/14</span>
+                    <span>✍️ 作者 ZephyrRyan</span>
+                    <span>📖 3 分钟阅读</span>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <div class="table-of-contents">
+                    <div class="toc-title">📑 文章内容</div>
+                    <ul class="toc-list">
+                        <li><a href="#section-title">题目</a></li>
+                        <li><a href="#section-analysis">解析</a></li>
+                        <li><a href="#section-solution">解决方案</a></li>
+                        <li><a href="#section-code">代码</a></li>
+                        <li><a href="#section-result">运行结果</a></li>
+                        <li><a href="#section-reference">参考</a></li>
+                    </ul>
+                </div>
+                
+                <h2 id="section-title">题目</h2>
+                <p><strong>cracking-sha1-hashed-passwords</strong><br>
+                原题链接：<a href="https://www.mysterytwisterc3.org/en/challenges/level-2/cracking-sha1-hashed-passwords" target="_blank">https://www.mysterytwisterc3.org/en/challenges/level-2/cracking-sha1-hashed-passwords</a></p>
+
+                <h2 id="section-crack">Cracking Sha1-Hashed passwords</h2>
+                <p>已知 password 经过 sha1-hash 后的值和键盘输入痕迹，破解密码。</p>
+
+                <h2 id="section-analysis">解析</h2>
+                <h3>知识点</h3>
+                <ul>
+                    <li><strong>SHA-1</strong> 是一种密码散列函数，可以生成一个被称为消息摘要的160位（20字节）散列值，通常呈现为40个十六进制数。</li>
+                </ul>
+
+                <h2>分析</h2>
+                <p>根据键盘上的指纹痕迹，判断密码所包含的字符：<br>
+                <code>['q', 'Q', 'w', 'W', 'n', 'N', 'i', 'I', '+', '*', '5', '8', '0', '!']</code>，最小密码长度为 8。</p>
+
+                <ul>
+                    <li><strong>product</strong> 是 Python 标准库中 <code>itertools</code> 模块的函数，用于计算笛卡尔积。</li>
+                </ul>
+
+                <h2 id="section-solution">解决方案</h2>
+                
+                <h3 id="section-code">代码</h3>
+                <pre><code># -*- coding: utf-8 -*-
+import hashlib
+import itertools
+
+def is_equal(c, target_hash):
+    return hashlib.sha1(c.encode('utf8')).hexdigest() == target_hash
+
+def main():
+    charset = ['q', 'Q', 'w', 'W', 'n', 'N', 'i', 'I', '+', '*', '5', '8', '0', '!']
+    target = '替换为题目给定的sha1哈希值'
+    
+    for length in range(8, 20):
+        for combo in itertools.product(charset, repeat=length):
+            candidate = ''.join(combo)
+            if is_equal(candidate, target):
+                print("The password is :", candidate)
+                return
+    print("未找到匹配密码")
+
+if __name__ == '__main__':
+    main()</code></pre>
+
+                <h3 id="section-result">运行结果</h3>
+                <div class="result-box">
+                    The password is : (Q=win*5)
+                </div>
+
+                <h3 id="section-reference">参考</h3>
+                <div class="ref-tags">
+                    <span class="ref-tag">MT3C, Level2</span>
+                    <span class="ref-tag">cryptography</span>
+                    <span class="ref-tag">mt3c</span>
+                    <span class="ref-tag">exp1</span>
+                </div>
+
+                <div class="license">
+                    本文由作者按照 CC BY 4.0 进行授权
+                </div>
+                <div class="share">
+                    <span>分享:</span>
+                    <span>Twitter</span>
+                    <span>GitHub</span>
+                    <span>微博</span>
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <hr>
+    <footer class="footer">
+        © 2024 nEwBeE303 | GitHub
+    </footer>
+</div>
+</body>
+</html>
