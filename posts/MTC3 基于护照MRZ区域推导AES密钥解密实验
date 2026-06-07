@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES-CBC模式解密实验 | nEwBeE303</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #faf9f8;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            color: #2c3e4e;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            padding: 2.5rem 2rem;
+        }
+
+        .site-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eaeef2;
+        }
+
+        .blog-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #1a4d6b;
+            margin-bottom: 0.3rem;
+        }
+
+        .tagline {
+            color: #6b8ba5;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 0.8rem;
+        }
+
+        .nav a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #4a708b;
+        }
+
+        .nav a:hover {
+            color: #1a4d6b;
+            text-decoration: underline;
+        }
+
+        .post-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .post-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a3a4a;
+            margin-bottom: 0.75rem;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: #8aa9c2;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .post-content {
+            font-size: 1rem;
+            line-height: 1.75;
+            color: #2f4a5e;
+        }
+
+        .post-content h2 {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 0.75rem 0;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid #eef2f6;
+            color: #1a4d6b;
+            scroll-margin-top: 20px;
+        }
+
+        .post-content h3 {
+            font-size: 1.25rem;
+            margin: 1.2rem 0 0.5rem 0;
+            color: #2c6280;
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+        }
+
+        .post-content ul, .post-content ol {
+            margin: 0.75rem 0 1rem 1.8rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.4rem;
+        }
+
+        pre {
+            background: #1e2a36;
+            color: #e2e8f0;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            margin: 1.2rem 0;
+        }
+
+        code {
+            font-family: 'SF Mono', Monaco, monospace;
+            background: #f0f4f8;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #c7254e;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        .result-box {
+            background: #f0f7ee;
+            border-left: 4px solid #4c9f70;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin: 1.2rem 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .result-box-german {
+            background: #fefce8;
+            border-left: 4px solid #e6b422;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin: 1.2rem 0;
+        }
+
+        .ref-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .ref-tag {
+            background: #eff3f8;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #3a6b8c;
+        }
+
+        .license {
+            margin: 2rem 0 1rem;
+            padding-top: 1rem;
+            font-size: 0.8rem;
+            color: #8aa2b8;
+            text-align: center;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .share {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        hr {
+            margin: 1.5rem 0;
+            border: none;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #8aa2b8;
+            margin-top: 2rem;
+            padding-top: 1rem;
+        }
+
+        .table-of-contents {
+            background: #f8fafc;
+            border: 1px solid #e6edf4;
+            border-radius: 18px;
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0 1.8rem;
+        }
+
+        .toc-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a4d6b;
+            margin-bottom: 0.8rem;
+        }
+
+        .toc-list {
+            list-style: none;
+            margin: 0;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem 1.5rem;
+        }
+
+        .toc-list li {
+            margin: 0;
+        }
+
+        .toc-list a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #3a6b8c;
+        }
+
+        .toc-list a:hover {
+            color: #1a4d6b;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: #4a708b;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: #1a4d6b;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 620px) {
+            .container {
+                padding: 1.5rem;
+            }
+            .post-title {
+                font-size: 1.6rem;
+            }
+            .toc-list {
+                flex-direction: column;
+                gap: 0.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="site-header">
+        <h1 class="blog-title">nEwBeE303</h1>
+        <div class="tagline">记录学习，分享思考</div>
+        <div class="nav">
+            <a href="/">home</a>
+            <a href="/about.html">about</a>
+            <a href="/archive.html">archive</a>
+        </div>
+    </header>
+
+    <main>
+        <article>
+            <div class="post-header">
+                <h1 class="post-title">AES-CBC 模式解密 Base64 编码密文</h1>
+                <div class="post-meta">
+                    <span>📅 发表于 2026/05/20</span>
+                    <span>✍️ 作者 nEwBeE303</span>
+                    <span>📖 6 分钟阅读</span>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <div class="table-of-contents">
+                    <div class="toc-title">📑 文章内容</div>
+                    <ul class="toc-list">
+                        <li><a href="#section-title">一、实验目标</a></li>
+                        <li><a href="#section-background">二、背景知识</a></li>
+                        <li><a href="#section-code">三、完整实现代码</a></li>
+                        <li><a href="#section-modules">四、代码模块说明</a></li>
+                        <li><a href="#section-result">五、运行结果</a></li>
+                        <li><a href="#section-summary">六、实验总结</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="section-title">一、实验目标</h2>
+                <p>以 AES-CBC 模式解密 Base64 编码后的密文。通过电子护照机读区（MRZ）数据派生 AES 密钥，完成解密并输出明文。</p>
+
+                <h2 id="section-background">二、背景知识</h2>
+                <h3>2.1 AES-CBC 模式</h3>
+                <p>AES（Advanced Encryption Standard）是一种对称分组密码算法，分组长度为 128 位（16 字节）。CBC（Cipher Block Chaining）模式通过将前一个密文块与当前明文块进行 XOR 运算后再加密，增强了安全性。解密时，IV（初始化向量）需与加密时相同。本实验中 IV 为全 0。</p>
+                
+                <h3>2.2 电子护照密钥派生</h3>
+                <p>电子护照（ePassport）使用机读区（MRZ）数据通过 SHA-1 哈希和奇偶校验位生成基本访问控制（BAC）密钥。流程如下：</p>
+                <ul>
+                    <li>从护照 MRZ 字符串中提取有效数据（文档号、出生日期、有效期）</li>
+                    <li>计算 SHA-1 哈希得到 <code>h_mrz</code></li>
+                    <li>拼接固定种子 <code>"00000001"</code> 后再次 SHA-1，得到 <code>h_d</code></li>
+                    <li>取 <code>h_d</code> 前 32 个十六进制字符（16 字节），每 7 位添加奇偶校验位，生成最终 AES 密钥</li>
+                </ul>
+
+                <h2 id="section-code">三、完整实现代码</h2>
+                <pre><code>from Crypto.Cipher import AES
+import base64
+from hashlib import sha1
+
+
+def calculate_checksum(numbers, weights):
+    """计算校验和"""
+    return sum(n * w for n, w in zip(numbers, weights)) % 10
+
+
+def sha1_hexdigest(data):
+    """计算SHA-1哈希并返回十六进制字符串"""
+    return sha1(data.encode()).hexdigest()
+
+
+def odd_even_check(hex_string):
+    """对16进制字符串进行奇偶校验"""
+    binary_str = bin(int(hex_string, 16))[2:].zfill(len(hex_string) * 4)
+    checked_str = ''.join(b + '1' if b.count('1') % 2 == 0 else b + '0' for b in
+                          (binary_str[i:i + 7] for i in range(0, len(binary_str), 7)))
+    return hex(int(checked_str, 2))[2:].zfill(16)
+
+
+def add_parity_bits(hex_input):
+    """为每个 7 位数据块添加奇偶校验位"""
+    # 将十六进制输入转换为二进制字符串
+    binary_str = bin(int(hex_input, 16))[2:].zfill(8 * ((len(hex_input) * 4 + 7) // 8))
+
+    # 为每个 7 位的数据块添加奇偶校验位
+    parity_bits = [
+        binary_str[i:i + 7] + ('1' if binary_str[i:i + 7].count('1') % 2 == 0 else '0')
+        for i in range(0, len(binary_str), 8)
+    ]
+
+    # 将二进制字符串转换回十六进制并返回
+    return hex(int(''.join(parity_bits), 2))[2:].zfill(16)
+
+
+def generate_key(h_d):
+    """生成AES密钥"""
+    ka = add_parity_bits(h_d[:16])
+    kb = add_parity_bits(h_d[16:32])
+    return ka + kb
+
+
+def decrypt_aes_cbc(ciphertext, key):
+    """AES CBC模式解密，IV为全0"""
+    aes = AES.new(bytes.fromhex(key), AES.MODE_CBC, bytes.fromhex('0' * 32))
+    return aes.decrypt(ciphertext).decode('utf-8', errors='ignore')
+
+
+# 主逻辑
+if __name__ == "__main__":
+    # 护照MRZ原始字符串
+    passport = '12345678&lt;8&lt;&lt;&lt;1110182&lt;1111167&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;4'
+    # 截取MRZ有效数据
+    mrz = passport[:10] + passport[13:20] + passport[21:28]
+    # 第一次SHA1哈希
+    h_mrz = sha1_hexdigest(mrz)
+
+    # 拼接固定字段，生成密钥种子
+    k_seed = h_mrz[:32]
+    d = k_seed + '00000001'
+    h_d = sha1(bytes.fromhex(d)).hexdigest()
+
+    # 生成最终AES密钥
+    key = generate_key(h_d)
+
+    # Base64解码密文并解密
+    cipher_text = base64.b64decode(
+        '9MgYwmuPrjiecPMx61O6zIuy3MtIXQQ0E59T3xB6u0Gyf1gYs2i3K9Jxaa0zj4gTMazJuApwd6+jdyeI5iGHvhQyDHGVlAuYTgJrbFDrfB22Fpil2NfNnWFBTXyf7SDI')
+    result = decrypt_aes_cbc(cipher_text, key)
+    print(result)</code></pre>
+
+                <h2 id="section-modules">四、代码模块说明</h2>
+                
+                <h3>4.1 工具函数</h3>
+                <ul>
+                    <li><strong>calculate_checksum</strong>：通用校验和计算函数，用于 MRZ 标准校验；</li>
+                    <li><strong>sha1_hexdigest</strong>：对字符串做 SHA-1 哈希，输出十六进制结果；</li>
+                    <li><strong>add_parity_bits</strong>：二进制分块并添加奇偶校验位，符合电子护照密钥派生规范；</li>
+                    <li><strong>generate_key</strong>：将哈希结果分段、添加校验位后拼接，得到标准 AES 密钥。</li>
+                </ul>
+                
+                <h3>4.2 解密函数</h3>
+                <p><strong>decrypt_aes_cbc</strong> 实现 AES-CBC 解密，实验规定初始向量 IV 为全 0 十六进制字符串。</p>
+                
+                <h3>4.3 主流程</h3>
+                <p>首先从原始护照串截取 MRZ 数据，经过两次 SHA-1 哈希、奇偶位处理生成密钥，再对 Base64 密文解码并执行 AES 解密。</p>
+
+                <h2 id="section-result">五、运行结果</h2>
+                <div class="result-box">
+                    <strong>程序输出明文：</strong><br>
+                    Herzlichen Glueckwunsch. Sie haben die Nuss geknackt. Das Codewort lautet: Kryptographie!
+                </div>
+                <div class="result-box-german">
+                    <strong>🇩🇪 中文翻译：</strong><br>
+                    恭喜你成功破解挑战，本次验证码为：<strong>Kryptographie</strong>。
+                </div>
+
+                <h2 id="section-summary">六、实验总结</h2>
+                <p>本次实验完整复现了电子护照 MRZ 区域派生 AES 密钥的工业流程，掌握了哈希运算、奇偶校验、AES-CBC 分组密码、Base64 编解码等常用密码学技术，理解了真实场景中密钥派生的设计思路。</p>
+                <p>通过此实验，我们不仅学会了如何从标准证件数据中安全派生密钥，还深入理解了对称加密在实际系统中的应用方式。这对于密码学学习和工程实践都具有重要意义。</p>
+
+                <div class="ref-tags">
+                    <span class="ref-tag">AES-CBC</span>
+                    <span class="ref-tag">ePassport</span>
+                    <span class="ref-tag">MRZ</span>
+                    <span class="ref-tag">密钥派生</span>
+                    <span class="ref-tag">Base64</span>
+                    <span class="ref-tag">SHA-1</span>
+                </div>
+
+                <div class="license">
+                    本文由作者按照 CC BY 4.0 进行授权
+                </div>
+                <div class="share">
+                    <span>分享:</span>
+                    <span>Twitter</span>
+                    <span>GitHub</span>
+                    <span>微博</span>
+                </div>
+                
+                <a href="/" class="back-link">← 返回首页</a>
+            </div>
+        </article>
+    </main>
+
+    <hr>
+    <footer class="footer">
+        © 2026 nEwBeE303 | <a href="https://github.com/nEwbEe303">GitHub</a>
+    </footer>
+</div>
+</body>
+</html>
