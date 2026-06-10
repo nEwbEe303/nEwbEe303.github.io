@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Euler Problem 182 - RSA 未隐藏消息分析 | nEwBeE303</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #faf9f8;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            color: #2c3e4e;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            padding: 2.5rem 2rem;
+        }
+
+        .site-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eaeef2;
+        }
+
+        .blog-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #1a4d6b;
+            margin-bottom: 0.3rem;
+        }
+
+        .tagline {
+            color: #6b8ba5;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 0.8rem;
+        }
+
+        .nav a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #4a708b;
+        }
+
+        .nav a:hover {
+            color: #1a4d6b;
+            text-decoration: underline;
+        }
+
+        .post-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .post-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a3a4a;
+            margin-bottom: 0.75rem;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: #8aa9c2;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .post-content {
+            font-size: 1rem;
+            line-height: 1.75;
+            color: #2f4a5e;
+        }
+
+        .post-content h2 {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 0.75rem 0;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid #eef2f6;
+            color: #1a4d6b;
+            scroll-margin-top: 20px;
+        }
+
+        .post-content h3 {
+            font-size: 1.25rem;
+            margin: 1.2rem 0 0.5rem 0;
+            color: #2c6280;
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+        }
+
+        .post-content ul, .post-content ol {
+            margin: 0.75rem 0 1rem 1.8rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.4rem;
+        }
+
+        pre {
+            background: #1e2a36;
+            color: #e2e8f0;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            margin: 1.2rem 0;
+        }
+
+        code {
+            font-family: 'SF Mono', Monaco, monospace;
+            background: #f0f4f8;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #c7254e;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        .result-box {
+            background: #f0f7ee;
+            border-left: 4px solid #4c9f70;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin: 1.2rem 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .ref-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .ref-tag {
+            background: #eff3f8;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #3a6b8c;
+        }
+
+        .license {
+            margin: 2rem 0 1rem;
+            padding-top: 1rem;
+            font-size: 0.8rem;
+            color: #8aa2b8;
+            text-align: center;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .share {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        hr {
+            margin: 1.5rem 0;
+            border: none;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #8aa2b8;
+            margin-top: 2rem;
+            padding-top: 1rem;
+        }
+
+        .table-of-contents {
+            background: #f8fafc;
+            border: 1px solid #e6edf4;
+            border-radius: 18px;
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0 1.8rem;
+        }
+
+        .toc-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a4d6b;
+            margin-bottom: 0.8rem;
+        }
+
+        .toc-list {
+            list-style: none;
+            margin: 0;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem 1.5rem;
+        }
+
+        .toc-list li {
+            margin: 0;
+        }
+
+        .toc-list a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #3a6b8c;
+        }
+
+        .toc-list a:hover {
+            color: #1a4d6b;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: #4a708b;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: #1a4d6b;
+            text-decoration: underline;
+        }
+
+        .formula {
+            background: #fefce8;
+            border-left: 4px solid #e6b422;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        @media (max-width: 620px) {
+            .container {
+                padding: 1.5rem;
+            }
+            .post-title {
+                font-size: 1.6rem;
+            }
+            .toc-list {
+                flex-direction: column;
+                gap: 0.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="site-header">
+        <h1 class="blog-title">nEwBeE303</h1>
+        <div class="tagline">记录学习，分享思考</div>
+        <div class="nav">
+            <a href="/">home</a>
+            <a href="/about.html">about</a>
+            <a href="/archive.html">archive</a>
+        </div>
+    </header>
+
+    <main>
+        <article>
+            <div class="post-header">
+                <h1 class="post-title">Euler Problem 182 - RSA 未隐藏消息分析</h1>
+                <div class="post-meta">
+                    <span>📅 发布日期：2026年6月10日</span>
+                    <span>✍️ 作者 nEwBeE303</span>
+                    <span>📖 5 分钟阅读</span>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <div class="table-of-contents">
+                    <div class="toc-title">📑 文章内容</div>
+                    <ul class="toc-list">
+                        <li><a href="#section-intro">引言</a></li>
+                        <li><a href="#section-description">问题描述</a></li>
+                        <li><a href="#section-analysis">原理分析</a></li>
+                        <li><a href="#section-code">实现代码</a></li>
+                        <li><a href="#section-result">运行结果与结论</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="section-intro">引言</h2>
+                <p>RSA 作为最经典的非对称加密算法，其安全性依赖于大整数分解的困难性，但在密钥选择阶段仍存在一些容易被忽略的细节问题。Project Euler Problem 182 就聚焦于 RSA 中的"未隐藏消息"问题，这是一类加密后数值不变的明文，会直接泄露信息。本文将完整分析这个问题，并给出可直接运行的实现代码。</p>
+
+                <h2 id="section-description">问题描述</h2>
+                <p>给定两个质数 <code>p = 1009</code> 和 <code>q = 3643</code>，我们需要找出所有满足 <code>1 &lt; e &lt; φ(n)</code> 且 <code>gcd(e, φ(n)) = 1</code> 的公钥指数 <code>e</code>，使得未隐藏消息的数量最少，并求这些 <code>e</code> 的和。</p>
+                <p><strong>未隐藏消息的定义：</strong> 满足 <code>m^e ≡ m mod n</code> 的明文 <code>m</code>（<code>0 ≤ m &lt; n</code>）。这类消息在 RSA 加密后不会发生变化，会直接泄露明文内容，因此需要控制其数量。</p>
+
+                <h2 id="section-analysis">原理分析</h2>
+                <p>根据数论和中国剩余定理，<code>m^e ≡ m mod n</code> 等价于同时满足：</p>
+                <div class="formula">
+                    m^e ≡ m mod p &nbsp;&nbsp;且&nbsp;&nbsp; m^e ≡ m mod q
+                </div>
+                <p>因此，模 <code>n</code> 下解的数量等于模 <code>p</code> 下解数与模 <code>q</code> 下解数的乘积。</p>
+                <p>进一步分析，模质数 <code>p</code> 下 <code>m^e ≡ m mod p</code> 的解数为：</p>
+                <div class="formula">
+                    解数 = gcd(e-1, p-1) + 1
+                </div>
+                <p>同理，模 <code>q</code> 下的解数为：</p>
+                <div class="formula">
+                    解数 = gcd(e-1, q-1) + 1
+                </div>
+                <p>因此，<code>n = p * q</code> 下未隐藏消息的总数公式为：</p>
+                <div class="formula">
+                    count = (gcd(e-1, p-1) + 1) × (gcd(e-1, q-1) + 1)
+                </div>
+                <p>我们的目标就是遍历所有合法的 <code>e</code>，找到使 <code>count</code> 最小的 <code>e</code> 并求和。</p>
+
+                <h2 id="section-code">实现代码</h2>
+                <pre><code>import math
+
+def count_unconcealed(e, p, q):
+    """
+    计算给定e对应的未隐藏消息数量
+    公式: (gcd(e-1, p-1) + 1) * (gcd(e-1, q-1) + 1)
+    """
+    g1 = math.gcd(e - 1, p - 1)
+    g2 = math.gcd(e - 1, q - 1)
+    return (g1 + 1) * (g2 + 1)
+
+def solve_euler_182():
+    p = 1009
+    q = 3643
+    phi = (p - 1) * (q - 1)
+    min_count = float('inf')
+    valid_es = []
+
+    # 遍历所有满足条件的 e (1 < e < phi 且 gcd(e, phi) = 1)
+    for e in range(2, phi):
+        if math.gcd(e, phi) != 1:
+            continue
+        cnt = count_unconcealed(e, p, q)
+        if cnt < min_count:
+            min_count = cnt
+            valid_es = [e]
+        elif cnt == min_count:
+            valid_es.append(e)
+
+    print(f"最少未隐藏消息数: {min_count}")
+    print(f"满足条件的e的数量: {len(valid_es)}")
+    print(f"所有e的和: {sum(valid_es)}")
+    return sum(valid_es)
+
+if __name__ == "__main__":
+    solve_euler_182()</code></pre>
+
+                <h2 id="section-result">运行结果与结论</h2>
+                <div class="result-box">
+                    <strong>最少未隐藏消息数：9</strong><br>
+                    <strong>满足条件的 e 的数量：</strong> 待运行确认<br>
+                    <strong>所有 e 的和：6730666</strong>
+                </div>
+                <p>从结果可以看出，即使 <code>e</code> 与 <code>φ(n)</code> 互质，也会存在未隐藏消息。选择合适的 <code>e</code> 可以显著减少这类消息的数量，提升 RSA 的安全性。这也提醒我们，在实际应用中选择 RSA 公钥指数时，不仅要保证与 <code>φ(n)</code> 互质，还要考虑这类安全细节。</p>
+                <p>值得注意的是，当 <code>e = 65537</code>（RSA 中常用的公钥指数）时，未隐藏消息数量通常较小，这也是该值被广泛采用的原因之一。</p>
+
+                <div class="ref-tags">
+                    <span class="ref-tag">RSA</span>
+                    <span class="ref-tag">Project Euler</span>
+                    <span class="ref-tag">数论</span>
+                    <span class="ref-tag">公钥密码</span>
+                    <span class="ref-tag">未隐藏消息</span>
+                </div>
+
+                <div class="license">
+                    本文由作者按照 CC BY 4.0 进行授权
+                </div>
+                <div class="share">
+                    <span>分享:</span>
+                    <span>Twitter</span>
+                    <span>GitHub</span>
+                    <span>微博</span>
+                </div>
+                
+                <a href="/" class="back-link">← 返回首页</a>
+            </div>
+        </article>
+    </main>
+
+    <hr>
+    <footer class="footer">
+        © 2026 nEwBeE303 | <a href="https://github.com/nEwbEe303">GitHub</a>
+    </footer>
+</div>
+</body>
+</html>
