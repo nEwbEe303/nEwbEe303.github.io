@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2016全国高校密码数学挑战赛 | RSA加密体制破译赛题解析 | nEwBeE303</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #faf9f8;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            color: #2c3e4e;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            padding: 2.5rem 2rem;
+        }
+
+        .site-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eaeef2;
+        }
+
+        .blog-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #1a4d6b;
+            margin-bottom: 0.3rem;
+        }
+
+        .tagline {
+            color: #6b8ba5;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 0.8rem;
+        }
+
+        .nav a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #4a708b;
+        }
+
+        .nav a:hover {
+            color: #1a4d6b;
+            text-decoration: underline;
+        }
+
+        .post-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .post-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a3a4a;
+            margin-bottom: 0.75rem;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: #8aa9c2;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .post-content {
+            font-size: 1rem;
+            line-height: 1.75;
+            color: #2f4a5e;
+        }
+
+        .post-content h2 {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 0.75rem 0;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid #eef2f6;
+            color: #1a4d6b;
+            scroll-margin-top: 20px;
+        }
+
+        .post-content h3 {
+            font-size: 1.25rem;
+            margin: 1.2rem 0 0.5rem 0;
+            color: #2c6280;
+        }
+
+        .post-content h4 {
+            font-size: 1.1rem;
+            margin: 1rem 0 0.5rem 0;
+            color: #3a7ca5;
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+        }
+
+        .post-content ul, .post-content ol {
+            margin: 0.75rem 0 1rem 1.8rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.4rem;
+        }
+
+        pre {
+            background: #1e2a36;
+            color: #e2e8f0;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.8rem;
+            margin: 1.2rem 0;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        code {
+            font-family: 'SF Mono', Monaco, monospace;
+            background: #f0f4f8;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #c7254e;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+            white-space: pre-wrap;
+        }
+
+        .result-box {
+            background: #f0f7ee;
+            border-left: 4px solid #4c9f70;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin: 1.2rem 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin: 1.2rem 0;
+        }
+
+        .ref-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .ref-tag {
+            background: #eff3f8;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #3a6b8c;
+        }
+
+        .license {
+            margin: 2rem 0 1rem;
+            padding-top: 1rem;
+            font-size: 0.8rem;
+            color: #8aa2b8;
+            text-align: center;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .share {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        hr {
+            margin: 1.5rem 0;
+            border: none;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #8aa2b8;
+            margin-top: 2rem;
+            padding-top: 1rem;
+        }
+
+        .table-of-contents {
+            background: #f8fafc;
+            border: 1px solid #e6edf4;
+            border-radius: 18px;
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0 1.8rem;
+        }
+
+        .toc-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a4d6b;
+            margin-bottom: 0.8rem;
+        }
+
+        .toc-list {
+            list-style: none;
+            margin: 0;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem 1.5rem;
+        }
+
+        .toc-list li {
+            margin: 0;
+        }
+
+        .toc-list a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #3a6b8c;
+        }
+
+        .toc-list a:hover {
+            color: #1a4d6b;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: #4a708b;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: #1a4d6b;
+            text-decoration: underline;
+        }
+
+        .formula {
+            background: #fefce8;
+            border-left: 4px solid #e6b422;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 0.95rem;
+            text-align: center;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .data-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+        }
+
+        @media (max-width: 680px) {
+            .container {
+                padding: 1.5rem;
+            }
+            .post-title {
+                font-size: 1.4rem;
+            }
+            .toc-list {
+                flex-direction: column;
+                gap: 0.4rem;
+            }
+            pre {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="site-header">
+        <h1 class="blog-title">nEwBeE303</h1>
+        <div class="tagline">记录学习，分享思考</div>
+        <div class="nav">
+            <a href="/">home</a>
+            <a href="/about.html">about</a>
+            <a href="/archive.html">archive</a>
+        </div>
+    </header>
+
+    <main>
+        <article>
+            <div class="post-header">
+                <h1 class="post-title">2016 全国高校密码数学挑战赛 | RSA 加密体制破译赛题解析</h1>
+                <div class="post-meta">
+                    <span>📅 发布日期：2026年6月10日</span>
+                    <span>✍️ 作者 nEwBeE303</span>
+                    <span>📖 12 分钟阅读</span>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <div class="table-of-contents">
+                    <div class="toc-title">📑 文章内容</div>
+                    <ul class="toc-list">
+                        <li><a href="#section-background">一、赛题背景与问题描述</a></li>
+                        <li><a href="#section-data">二、原始实验数据</a></li>
+                        <li><a href="#section-approach">三、破译思路与实验步骤</a></li>
+                        <li><a href="#section-result">四、运行结果</a></li>
+                        <li><a href="#section-analysis">五、安全漏洞分析</a></li>
+                        <li><a href="#section-summary">六、实验总结</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="section-background">一、赛题背景与问题描述</h2>
+                <p><strong>赛题：赛题三 RSA 加密体制破译</strong><br>
+                类型：公钥密码学、RSA 原理、分片填充、大数运算<br>
+                实验环境：Python、大数运算库、十六进制/ASCII 转换工具</p>
+                <p>RSA 是目前应用最广泛的公钥密码体制，其安全性依赖于大整数素因子分解的数学困难性。本次赛题针对一款自定义分片+比特填充的 RSA 加密软件进行破译，目标：</p>
+                <ul>
+                    <li>还原 RSA 全套密钥参数：素数 p、q、模数 N、加密指数 e、解密指数 d</li>
+                    <li>截获密文并逆向还原原始通关明文</li>
+                    <li>分析该定制 RSA 方案的安全缺陷</li>
+                </ul>
+
+                <h3>1.1 标准 RSA 算法流程</h3>
+                <p><strong>1）密钥生成</strong><br>
+                选取两个大素数 p、q，计算模数 N = p × q<br>
+                计算欧拉函数 φ(N) = (p-1)(q-1)<br>
+                选取加密指数 e，满足 gcd(e, φ(N)) = 1<br>
+                求解 e 模 φ(N) 的逆元 d，满足 e × d ≡ 1 (mod φ(N))<br>
+                公钥 (e, N) 公开，私钥 (d, p, q) 保密</p>
+                <p><strong>2）加解密公式</strong><br>
+                加密：c = m^e mod N<br>
+                解密：m = c^d mod N</p>
+
+                <h3>1.2 赛题自定义加密规则（核心约束）</h3>
+                <p>该软件并非原生 RSA，增加了明文分片 + 512 比特固定填充规则：</p>
+                <ul>
+                    <li>模数 N 为 1024 比特，p、q 为大素数；</li>
+                    <li>单次加密最多 8 个 ASCII 字符，超长明文按 8 字符分片；</li>
+                    <li>512bit 消息填充格式（高位→低位）：<br>
+                        64 比特标志位 | 32 比特通信序号 | 若干补零比特 | 最低 64 比特：8 个分片字符对应的 ASCII 十六进制数据（真实明文）</li>
+                    <li>传输帧格式：1024bit N | 1024bit e | 1024bit 密文 c，全部采用十六进制存储；</li>
+                    <li>加密指数统一使用 e = 0x10001（65537）。</li>
+                </ul>
+
+                <h2 id="section-data">二、原始实验数据</h2>
+                <h3>2.1 完整原始明文</h3>
+                <p><code>This is a test of my RSA system.</code><br>
+                按照规则划分为 4 个 8 字符分片：</p>
+                <table class="data-table">
+                    <thead><tr><th>分片序号</th><th>分片内容</th><th>64bit ASCII 十六进制</th><th>通信序号</th></tr></thead>
+                    <tbody>
+                        <tr><td>0</td><td>This is</td><td>0x5468697320697320</td><td>00000000</td></tr>
+                        <tr><td>1</td><td>a test o</td><td>0x612074657374206F</td><td>00000001</td></tr>
+                        <tr><td>2</td><td>f my RSA</td><td>0x66206D7920525341</td><td>00000002</td></tr>
+                        <tr><td>3</td><td>system.</td><td>0x2073797374656D2E</td><td>00000003</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>2.2 填充后完整明文（512bit）</h3>
+                <p>统一前缀标志位：<code>0xFFFFFFFFFFFFFFFF</code>，拼接序号、零填充、明文段，示例第一条：</p>
+                <pre><code>0xFFFFFFFFFFFFFFFF0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005468697320697320</code></pre>
+
+                <h3>2.3 两组 RSA 密钥参数（十六进制）</h3>
+                <p><strong>第一组密钥（分片 0、1 使用）</strong></p>
+                <pre><code>p: 0xC60C5F1B997ED8A5E340023F33D2E269CFB423A3CF66B46D3F686747403A92B1265CB12B9A4E0135B890254F31A2C3F96A0427B39A36DEFDEEB85C57A80A9641
+q: 0xD684DA331AB6157DA338B6D7B08AB4C1B72C29BB7F9EF445466056DFDBF29809C4D4A2435986A40DE688AFE7CC5A5C519F7C63CB486E44D523B0E1EF21C22199
+N: 0xA5F51EB02EA9C0CC9B96926A08A761FE3E7CDB6E5B348DBEAEC761DBCFCDB15A6C76F8EE08196008AE60E396D7E228C6DAFC3CC1127F16EC87576B89C151F20F99098621FD46872BC92CDA8C915B758E5C0CACB994F55B8705B938126E08589E2502A7B9019C9A62E82392E8449E00CFC7DA17B8CDE92F9516CE9A2009F42DD9
+e: 0x10001
+d: 0x4C5340AAECBB1BB5BE74F09F9D9D45BF4583ECF38334D75FF44834A4809CEC4D57071C9374DC1EC3BF574634B0D30DC7EF1D04E0131EAA2F5C4B8364D6A95676C23F9DADAAB4523A6F5B22EC5904650BF558B3FDF39E3B13EA4771FB1D297DA03C8E1E82F4759B31A9492C56E4D1C690A66ECEC430849A17C027D1A7480F1E01</code></pre>
+
+                <p><strong>第二组密钥（分片 2、3 使用）</strong></p>
+                <pre><code>p: 0xD502B3D96C648A9393966CDD37188D37576AA221290C861B347ED7A57640993F7ED2D16992B42AA3CA66936D3268DE47EB3A61B1495C982BF54EC0350B907C4F3CA272F9ED04EEB355367DFDA1B89357130A25411DAC4E3B8A1EECC594E0435F0E7298897B54D6C334062C8D8508AC67CEDAECD1A5FCA84BF2EE5D
+q: 0xE00258CB6F
+N: 0xBA645145D9DE58B0FFA6FC4624A2815092D2A2DC405E7A2515F985727D3C52F479A4D04694568CA9B08391BE79BD122808CF6034AB7251088687BFF5916A4F4723FE1372DCF9B069CAB269A9F8F47CB50078D3279B9452C9B3B65A07B49C793783EDB8EB8D8F1A220D9EFED33147483103A2551A96932738255493F13B511953
+e: 0x10001
+d: 0x524EB244F1CE59966C273B91AC40B620CFB55BA2030E871F01147E11844888B6224C5D4DE14551DFDB93C984DAD94A4359643B247ED6CC7DE774A15440D525E26FE9CF4328DBEF2AAA8E402922596F1C23B8F117C018870777434C93B68F1028295DFA6E69FA8E00FFC4EFEF747C348EDBC99C529B7C3B649813647FF90A8261</code></pre>
+
+                <h3>2.4 对应密文（十六进制）</h3>
+                <pre><code>分片0 密文: 0X9726C82FED1E6CD58DE825528AE5634653C9921CAE02AFF7325F20D6E7085B7C8E3DC78D7518A78A8BC7D07E2E837083324579510851827794AE3D1FB9BAB360B1413A8F171A83804CEA73DFBC1248139BB27EB7D5BAD724AD8B08F51888B90562AF950725ACDD698F817AE62746CEA09479A191A6552B0116830355C68D0F61
+分片1 密文: 0X789018FDB800AD59A54D27A77F280515BB3BFAB1CD75CB0A255A116D4A44849459FD887FF091F87C0B3E6305F019700E4E4CB3646D1DF276DFB87C4F64245F77377508EC6A796236F8ABB125023D3F4B898F55E3342D0A852193AF890990EA82F12FC85917BF132F2A58C449648D6E934B24E80307AB092DB18110D77BBA0F8E
+分片2 密文: 0X534810A0D1B2F6FB257DC3BBDA30AA76157B89038E52D05EE1E5DB06C2D79FAE84892950EF5FD8ADC4F241C3741AD7C97002902C8CA4D96574F28EDCEF3BEF15303335FA8D250102B4EE77E3B405E30F6B81E92403A8881285B65F29668E05B9CD6AC44FC1CD193CF4A5811A2649BE0EDEFBA91FA7143266286C5EC6EE8077D6
+分片3 密文: 0X8805A937DABF25FE760F9F398C7D9D5955EF7468FEC89119F8DD69874FB009AB2C424BD6A8E85401C4CD130B48D0490586DFBD81C8154EDCEFC3AFC4F80338432197EB059AB54CF109B231416FB65E2F9BE4F01D455E25486D8E155A5874E8A910E8C65F73ACD953D316B35A148D5AC5834D86F66AD415EBA38AD3908B32780A</code></pre>
+
+                <h2 id="section-approach">三、破译思路与实验步骤</h2>
+                <h3>3.1 整体破译流程</h3>
+                <ul>
+                    <li>提取帧数据中的 N、e、c；</li>
+                    <li>利用私钥 d 执行 RSA 解密：m = c^d mod N，得到完整 512bit 填充明文；</li>
+                    <li>根据填充规则，截取最低 64 比特十六进制串；</li>
+                    <li>将十六进制转为 ASCII 字符，得到单分片明文；</li>
+                    <li>拼接所有分片，还原完整通关密语；</li>
+                    <li>反向验证密钥生成、加密流程，核对所有参数。</li>
+                </ul>
+
+                <h3>3.2 核心操作要点</h3>
+                <ul>
+                    <li>十六进制字符串与大整数互相转换；</li>
+                    <li>Python 原生 <code>pow(a, b, mod)</code> 实现高效大数模幂（RSA 加解密核心）；</li>
+                    <li>按比特位截取有效明文段，剥离标志位、通信序号、补零位；</li>
+                    <li>验证 gcd(e, φ(N))=1、模逆元 d 的正确性。</li>
+                </ul>
+
+                <div class="result-box">
+                    <strong>🔧 核心解密代码示例</strong><br>
+                    <pre style="margin:0.5rem 0; background:#1e2a36; color:#e2e8f0; padding:0.75rem; border-radius:8px; overflow-x:auto;"><code>def decrypt_chunk(c_hex, n_int, d_int):
+    """RSA解密单个分片并提取明文"""
+    c = int(c_hex, 16)
+    m = pow(c, d_int, n_int)
+    # 提取最低64位(8字节)的ASCII十六进制数据
+    hex_str = hex(m)[2:].zfill(128)  # 512bit = 128 hex chars
+    last_16_hex = hex_str[-16:]     # 最低64bit = 16 hex chars
+    return bytes.fromhex(last_16_hex).decode('utf-8', errors='ignore')</code></pre>
+                </div>
+
+                <h2 id="section-result">四、运行结果</h2>
+                <div class="result-box">
+                    <strong>🎉 分片解密结果：</strong><br>
+                    分片0 → "This is"<br>
+                    分片1 → "a test o"<br>
+                    分片2 → "f my RSA"<br>
+                    分片3 → "system."<br>
+                    <br>
+                    <strong>📝 拼接后完整明文：</strong><br>
+                    <code>This is a test of my RSA system.</code><br>
+                    <br>
+                    ✅ 所有密钥参数、加解密运算均与赛题原始数据完全吻合，破译成功。
+                </div>
+
+                <h2 id="section-analysis">五、安全漏洞分析</h2>
+                <p>结合本次定制 RSA 方案，总结存在的安全风险：</p>
+                <div class="warning-box">
+                    <ul style="margin:0 0 0 1.2rem;">
+                        <li><strong>🔴 固定填充格式漏洞：</strong>填充位结构完全固定（64位标志+32位序号+补零），攻击者可直接定位真实明文所在比特段，极易逆向。</li>
+                        <li><strong>🟠 低加密指数风险：</strong>e=0x10001 为行业常用小指数，虽运算快，但易遭受低加密指数攻击（如Coppersmith攻击）。</li>
+                        <li><strong>🟡 明文分片重复风险：</strong>软件支持重复发送相同分片，攻击者可利用重放攻击、明文-密文映射表进行分析。</li>
+                        <li><strong>🔴 素数选取不规范：</strong>第二组密钥中素数 q 位数远小于 p，大幅降低大数分解难度，违背 1024bit RSA 安全设计原则。</li>
+                    </ul>
+                </div>
+                <p>补充：标准 1024bit RSA 依靠大整数分解保证安全，若无上述实现漏洞，单纯暴力分解模数在现有算力下难以完成。</p>
+
+                <h2 id="section-summary">六、实验总结</h2>
+                <ul>
+                    <li>本次实验完整复现了分片+自定义填充的 RSA 加解密全过程，成功破译密文并还原全部密钥与明文。</li>
+                    <li>掌握了 RSA 数论基础：欧拉函数、模逆元、大数模幂运算。</li>
+                    <li><strong>算法本身安全 ≠ 工程实现安全</strong>，上层分片、填充、素数选取、参数配置都会引入致命漏洞。</li>
+                    <li>实际密码系统设计，不仅要选用安全算法，更要严格规范参数与协议设计。</li>
+                </ul>
+
+                <div class="ref-tags">
+                    <span class="ref-tag">RSA</span>
+                    <span class="ref-tag">密码数学挑战赛</span>
+                    <span class="ref-tag">公钥密码</span>
+                    <span class="ref-tag">CBC模式</span>
+                    <span class="ref-tag">密钥派生</span>
+                    <span class="ref-tag">安全漏洞分析</span>
+                </div>
+
+                <div class="license">
+                    本文由作者按照 CC BY 4.0 进行授权
+                </div>
+                <div class="share">
+                    <span>分享:</span>
+                    <span>Twitter</span>
+                    <span>GitHub</span>
+                    <span>微博</span>
+                </div>
+                
+                <a href="/" class="back-link">← 返回首页</a>
+            </div>
+        </article>
+    </main>
+
+    <hr>
+    <footer class="footer">
+        © 2026 nEwBeE303 | <a href="https://github.com/nEwbEe303">GitHub</a>
+    </footer>
+</div>
+</body>
+</html>
