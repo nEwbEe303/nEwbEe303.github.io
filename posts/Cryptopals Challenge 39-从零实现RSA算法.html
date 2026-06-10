@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptopals Challenge 39 - 从零实现 RSA 算法 | nEwBeE303</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #faf9f8;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.7;
+            color: #2c3e4e;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            padding: 2.5rem 2rem;
+        }
+
+        .site-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eaeef2;
+        }
+
+        .blog-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #1a4d6b;
+            margin-bottom: 0.3rem;
+        }
+
+        .tagline {
+            color: #6b8ba5;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 0.8rem;
+        }
+
+        .nav a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #4a708b;
+        }
+
+        .nav a:hover {
+            color: #1a4d6b;
+            text-decoration: underline;
+        }
+
+        .post-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .post-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a3a4a;
+            margin-bottom: 0.75rem;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: #8aa9c2;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .post-content {
+            font-size: 1rem;
+            line-height: 1.75;
+            color: #2f4a5e;
+        }
+
+        .post-content h2 {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 0.75rem 0;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid #eef2f6;
+            color: #1a4d6b;
+            scroll-margin-top: 20px;
+        }
+
+        .post-content h3 {
+            font-size: 1.25rem;
+            margin: 1.2rem 0 0.5rem 0;
+            color: #2c6280;
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+        }
+
+        .post-content ul, .post-content ol {
+            margin: 0.75rem 0 1rem 1.8rem;
+        }
+
+        .post-content li {
+            margin-bottom: 0.4rem;
+        }
+
+        pre {
+            background: #1e2a36;
+            color: #e2e8f0;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            margin: 1.2rem 0;
+        }
+
+        code {
+            font-family: 'SF Mono', Monaco, monospace;
+            background: #f0f4f8;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #c7254e;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        .result-box {
+            background: #f0f7ee;
+            border-left: 4px solid #4c9f70;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin: 1.2rem 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .ref-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .ref-tag {
+            background: #eff3f8;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #3a6b8c;
+        }
+
+        .license {
+            margin: 2rem 0 1rem;
+            padding-top: 1rem;
+            font-size: 0.8rem;
+            color: #8aa2b8;
+            text-align: center;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .share {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        hr {
+            margin: 1.5rem 0;
+            border: none;
+            border-top: 1px solid #eef2f6;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #8aa2b8;
+            margin-top: 2rem;
+            padding-top: 1rem;
+        }
+
+        .table-of-contents {
+            background: #f8fafc;
+            border: 1px solid #e6edf4;
+            border-radius: 18px;
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0 1.8rem;
+        }
+
+        .toc-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a4d6b;
+            margin-bottom: 0.8rem;
+        }
+
+        .toc-list {
+            list-style: none;
+            margin: 0;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem 1.5rem;
+        }
+
+        .toc-list li {
+            margin: 0;
+        }
+
+        .toc-list a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            color: #3a6b8c;
+        }
+
+        .toc-list a:hover {
+            color: #1a4d6b;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: #4a708b;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: #1a4d6b;
+            text-decoration: underline;
+        }
+
+        .formula {
+            background: #fefce8;
+            border-left: 4px solid #e6b422;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        @media (max-width: 620px) {
+            .container {
+                padding: 1.5rem;
+            }
+            .post-title {
+                font-size: 1.6rem;
+            }
+            .toc-list {
+                flex-direction: column;
+                gap: 0.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header class="site-header">
+        <h1 class="blog-title">nEwBeE303</h1>
+        <div class="tagline">记录学习，分享思考</div>
+        <div class="nav">
+            <a href="/">home</a>
+            <a href="/about.html">about</a>
+            <a href="/archive.html">archive</a>
+        </div>
+    </header>
+
+    <main>
+        <article>
+            <div class="post-header">
+                <h1 class="post-title">Cryptopals Challenge 39 - 从零实现 RSA 算法</h1>
+                <div class="post-meta">
+                    <span>📅 发布日期：2026年6月10日</span>
+                    <span>✍️ 作者 nEwBeE303</span>
+                    <span>📖 6 分钟阅读</span>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <div class="table-of-contents">
+                    <div class="toc-title">📑 文章内容</div>
+                    <ul class="toc-list">
+                        <li><a href="#section-intro">引言</a></li>
+                        <li><a href="#section-description">任务描述</a></li>
+                        <li><a href="#section-principle">核心原理</a></li>
+                        <li><a href="#section-details">关键实现细节</a></li>
+                        <li><a href="#section-code">完整 RSA 实现</a></li>
+                        <li><a href="#section-result">实验结果与总结</a></li>
+                    </ul>
+                </div>
+
+                <h2 id="section-intro">引言</h2>
+                <p>RSA 是现代密码学的基石之一，它的核心原理并不复杂，但从零实现时会遇到两个关键问题：大质数生成和模逆元计算。本文将完整实现一个可运行的 RSA 加密/解密程序，并结合 Cryptopals Challenge 39 的要求，讲解每一步的实现细节。</p>
+
+                <h2 id="section-description">任务描述</h2>
+                <p>Cryptopals Challenge 39 要求我们从零实现 RSA 算法，核心步骤包括：</p>
+                <ul>
+                    <li>生成两个随机质数 <code>p</code> 和 <code>q</code></li>
+                    <li>计算 <code>n = p * q</code> 和欧拉函数 <code>φ(n) = (p-1)(q-1)</code></li>
+                    <li>选择公钥指数 <code>e = 3</code>，计算私钥指数 <code>d = invmod(e, φ(n))</code></li>
+                    <li>实现加密：<code>c = m^e mod n</code>，解密：<code>m = c^d mod n</code></li>
+                    <li>支持字符串消息的加解密</li>
+                </ul>
+
+                <h2 id="section-principle">核心原理</h2>
+                <p>RSA 算法的核心基于模幂运算和模逆元：</p>
+                <ul>
+                    <li><strong>公钥：</strong><code>(e, n)</code>，公开给发送方，用于加密</li>
+                    <li><strong>私钥：</strong><code>(d, n)</code>，仅接收方持有，用于解密</li>
+                    <li><strong>加密：</strong><code>c = m^e mod n</code></li>
+                    <li><strong>解密：</strong><code>m = c^d mod n</code></li>
+                </ul>
+                <p>其中，<code>d</code> 是 <code>e</code> 在模 <code>φ(n)</code> 下的乘法逆元，满足 <code>e·d ≡ 1 mod φ(n)</code>，可通过扩展欧几里得算法计算。</p>
+
+                <h2 id="section-details">关键实现细节</h2>
+
+                <h3>1. 扩展欧几里得算法与模逆元</h3>
+                <pre><code>def egcd(a, b):
+    """扩展欧几里得算法，求解ax + by = gcd(a,b)"""
+    if a == 0:
+        return (b, 0, 1)
+    else:
+        g, y, x = egcd(b % a, a)
+        return (g, x - (b // a) * y, y)
+
+def invmod(a, m):
+    """求a在模m下的乘法逆元"""
+    g, x, y = egcd(a, m)
+    if g != 1:
+        raise Exception("模逆不存在")
+    else:
+        return x % m</code></pre>
+
+                <h3>2. 质数生成（Miller-Rabin 测试）</h3>
+                <pre><code>import random
+
+def is_prime(n, k=5):
+    """Miller-Rabin质数测试"""
+    if n < 2:
+        return False
+    small_primes = [2,3,5,7,11,13,17,19,23,29]
+    for p in small_primes:
+        if n % p == 0:
+            return n == p
+    d = n - 1
+    s = 0
+    while d % 2 == 0:
+        d //= 2
+        s += 1
+    for _ in range(k):
+        a = random.randrange(2, min(n-1, 10**6))
+        x = pow(a, d, n)
+        if x == 1 or x == n - 1:
+            continue
+        for __ in range(s - 1):
+            x = pow(x, 2, n)
+            if x == n - 1:
+                break
+        else:
+            return False
+    return True
+
+def generate_prime(bits=256):
+    """生成指定位数的随机质数"""
+    while True:
+        p = random.randrange(2**(bits-1), 2**bits)
+        if is_prime(p):
+            return p</code></pre>
+
+                <h2 id="section-code">完整 RSA 实现</h2>
+                <pre><code>import random
+import math
+
+class RSA:
+    def __init__(self, bits=512, e=3):
+        # 生成两个质数
+        self.p = generate_prime(bits // 2)
+        self.q = generate_prime(bits // 2)
+        self.n = self.p * self.q
+        self.phi = (self.p - 1) * (self.q - 1)
+        self.e = e
+        # 确保e与phi互质
+        while math.gcd(self.e, self.phi) != 1:
+            self.e += 2
+        self.d = invmod(self.e, self.phi)
+
+    def encrypt(self, message):
+        """加密：支持字符串或整数输入"""
+        if isinstance(message, str):
+            message = int.from_bytes(message.encode('utf-8'), byteorder='big')
+        return pow(message, self.e, self.n)
+
+    def decrypt(self, ciphertext, return_str=True):
+        """解密：支持返回字符串或整数"""
+        message = pow(ciphertext, self.d, self.n)
+        if return_str:
+            message = message.to_bytes((message.bit_length() + 7) // 8, byteorder='big').decode('utf-8')
+        return message
+
+# 测试代码
+if __name__ == "__main__":
+    rsa = RSA(bits=512, e=3)
+    print(f"公钥: (e={rsa.e}, n={rsa.n})")
+    print(f"私钥: (d={rsa.d}, n={rsa.n})")
+
+    plaintext = "Hello RSA!"
+    cipher = rsa.encrypt(plaintext)
+    print(f"密文: {cipher}")
+    decrypted = rsa.decrypt(cipher)
+    print(f"解密结果: {decrypted}")</code></pre>
+
+                <h2 id="section-result">实验结果与总结</h2>
+                <div class="result-box">
+                    <strong>运行示例输出：</strong><br>
+                    公钥: (e=3, n=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...)<br>
+                    私钥: (d=yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy..., n=xxxxxxxx...)<br>
+                    密文: 1234567890...<br>
+                    解密结果: Hello RSA!
+                </div>
+                <p>运行上述代码，我们可以看到：</p>
+                <ul>
+                    <li>成功生成了 RSA 公钥和私钥</li>
+                    <li>对字符串 <code>Hello RSA!</code> 完成了加密和解密，解密结果与原文一致</li>
+                    <li>验证了 RSA 算法的正确性</li>
+                </ul>
+                <p>从零实现 RSA 让我们深入理解了其核心原理：模幂运算的高效性、模逆元的重要性，以及质数生成对安全性的影响。在实际应用中，RSA 的实现还需要考虑更多安全细节（如填充模式、侧信道攻击防护），但本次实现已经覆盖了核心流程，为后续学习 RSA 攻击和优化打下了坚实基础。</p>
+
+                <div class="ref-tags">
+                    <span class="ref-tag">RSA</span>
+                    <span class="ref-tag">Cryptopals</span>
+                    <span class="ref-tag">公钥密码</span>
+                    <span class="ref-tag">Miller-Rabin</span>
+                    <span class="ref-tag">扩展欧几里得</span>
+                </div>
+
+                <div class="license">
+                    本文由作者按照 CC BY 4.0 进行授权
+                </div>
+                <div class="share">
+                    <span>分享:</span>
+                    <span>Twitter</span>
+                    <span>GitHub</span>
+                    <span>微博</span>
+                </div>
+                
+                <a href="/" class="back-link">← 返回首页</a>
+            </div>
+        </article>
+    </main>
+
+    <hr>
+    <footer class="footer">
+        © 2026 nEwBeE303 | <a href="https://github.com/nEwbEe303">GitHub</a>
+    </footer>
+</div>
+</body>
+</html>
